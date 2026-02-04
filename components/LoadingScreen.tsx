@@ -157,13 +157,6 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
             </motion.h1>
           </motion.div>
         </div>
-
-        <div className="absolute top-4 left-4 text-muted-foreground/30 font-mono text-xs">
-          {"</>"}
-        </div>
-        <div className="absolute bottom-4 right-4 text-muted-foreground/30 font-mono text-xs">
-          v1.0.0
-        </div>
       </motion.div>
     </AnimatePresence>
   );
