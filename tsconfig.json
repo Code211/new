@@ -28,5 +28,5 @@
     "hooks/**/*.ts",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "src"]
+  "exclude": ["node_modules"]
 }
