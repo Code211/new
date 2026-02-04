@@ -1,210 +1,237 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Menu, X, Code, Calendar, HelpCircle, Award, Users, Mail, Home } from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+import { Button } from "@/components/ui/button";
 
-export function Navbar() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const pathname = usePathname()
+const navLinks = [
+  { name: "About", href: "/#about" },
+  { name: "Schedule", href: "/#schedule" },
+  { name: "FAQs", href: "/#faqs" },
+  { name: "Sponsors", href: "/#sponsors" },
+  { name: "Workshops", href: "/workshops" },
+  { name: "Activities", href: "/activities" },
+  { name: "Contact", href: "/contact" },
+];
+
+const Navbar = () => {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+  const { theme, setTheme, resolvedTheme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted && (resolvedTheme === "dark" || theme === "dark");
+  const toggleTheme = () => setTheme(isDark ? "light" : "dark");
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50)
-    }
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+      setIsScrolled(window.scrollY > 50);
+    };
 
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId)
-    if (element) {
-      const navbarHeight = 64 // Height of fixed navbar
-      const elementPosition = element.offsetTop - navbarHeight
-      window.scrollTo({
-        top: elementPosition,
-        behavior: "smooth",
-      })
-    }
-    setIsOpen(false) // Close mobile menu
-  }
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-  const navItems =
-    pathname === "/workshops"
-      ? [
-          { name: "Home", href: "/", icon: Home, isExternal: false },
-          { name: "About", href: "/#hero", icon: Code, isExternal: false },
-          { name: "Schedule", href: "/#schedule", icon: Calendar, isExternal: false },
-          { name: "Contact", href: "/#contact", icon: Mail, isExternal: false },
-        ]
-      : [
-          { name: "About", href: "#hero", icon: Code, isExternal: false },
-          { name: "Schedule", href: "#schedule", icon: Calendar, isExternal: false },
-          { name: "Workshops", href: "/workshops", icon: Users, isExternal: false },
-          { name: "Sponsors", href: "#sponsors", icon: Award, isExternal: false },
-          { name: "FAQ", href: "#faq", icon: HelpCircle, isExternal: false },
-          { name: "Contact", href: "#contact", icon: Mail, isExternal: false },
-        ]
+  const handleNavClick = (href: string) => {
+    setIsMobileMenuOpen(false);
+
+    if (href.startsWith("/#")) {
+      const sectionId = href.substring(2);
+      if (pathname === "/") {
+        const element = document.getElementById(sectionId);
+        element?.scrollIntoView({ behavior: "smooth" });
+      } else {
+        window.location.href = href;
+      }
+    }
+  };
 
   return (
-    <motion.nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled ? "bg-[#0d1117]/95 backdrop-blur-xl border-b border-[#1f6feb]/30" : "bg-transparent"
-      }`}
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <motion.div
-            className="flex items-center space-x-3"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-          >
-            <Link href="/" className="flex items-center space-x-3">
-              <div className="relative">
-                <motion.div
-                  className="w-10 h-10 bg-gradient-to-br from-[#1f6feb] to-[#58a6ff] rounded-lg flex items-center justify-center"
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-                  style={{
-                    boxShadow: "0 0 20px rgba(31, 111, 235, 0.6)",
-                  }}
-                >
-                  <Code className="w-6 h-6 text-white" />
-                </motion.div>
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-br from-[#1f6feb] to-[#58a6ff] rounded-lg opacity-30"
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
+    <>
+      <motion.nav
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+          isScrolled
+            ? "bg-background/80 backdrop-blur-lg border-b border-border"
+            : ""
+        }`}
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16 md:h-20">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="rounded-xl">
+                <Image
+                  src="/logo.png"
+                  alt="Logo"
+                  width={50}
+                  height={50}
+                  className="object-contain"
                 />
               </div>
-              <div className="text-[#e6edf3] font-bold text-xl font-mono">
-                Code<span className="text-[#1f6feb]">211</span>
-              </div>
+              <span className="text-xl md:text-2xl font-bold">Code211</span>
             </Link>
-          </motion.div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item, index) => (
-              <motion.div
-                key={item.name}
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ scale: 1.05 }}
+            <div className="hidden lg:flex items-center gap-8">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  onClick={(e) => {
+                    if (link.href.startsWith("/#")) {
+                      e.preventDefault();
+                      handleNavClick(link.href);
+                    }
+                  }}
+                  className="text-base text-foreground hover:text-primary transition-colors link-underline"
+                >
+                  {link.name}
+                </Link>
+              ))}
+            </div>
+
+            <div className="hidden md:flex items-center gap-4">
+              {/* <button
+                type="button"
+                onClick={toggleTheme}
+                className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
+                aria-label={
+                  isDark ? "Switch to light mode" : "Switch to dark mode"
+                }
               >
-                {item.href.startsWith("/") && !item.href.includes("#") ? (
-                  <Link
-                    href={item.href}
-                    className="text-[#8b949e] hover:text-[#1f6feb] transition-colors duration-300 flex items-center space-x-2 group"
-                  >
-                    <item.icon className="w-4 h-4 group-hover:text-[#58a6ff] transition-colors" />
-                    <span className="font-medium">{item.name}</span>
-                  </Link>
+                {mounted ? (
+                  isDark ? (
+                    <Sun className="h-5 w-5" />
+                  ) : (
+                    <Moon className="h-5 w-5" />
+                  )
                 ) : (
-                  <button
-                    onClick={() => scrollToSection(item.href.replace("#", ""))}
-                    className="text-[#8b949e] hover:text-[#1f6feb] transition-colors duration-300 flex items-center space-x-2 group"
-                  >
-                    <item.icon className="w-4 h-4 group-hover:text-[#58a6ff] transition-colors" />
-                    <span className="font-medium">{item.name}</span>
-                  </button>
+                  <span className="h-5 w-5 block" aria-hidden />
                 )}
-              </motion.div>
-            ))}
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-            >
+              </button> */}
               <Button
-                className="bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] hover:from-[#58a6ff] hover:to-[#1f6feb] text-white px-6 py-2 rounded-lg transition-all duration-300 transform hover:scale-105"
-                style={{
-                  boxShadow: "0 0 20px rgba(31, 111, 235, 0.4)",
-                }}
+                asChild
+                variant="default"
+                className="bg-primary hover:bg-primary/90 glow-effect"
               >
-                Register
+                <Link
+                  href="https://forms.gle/UD1pEyFbTWy1Yddy7"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Register Now
+                </Link>
               </Button>
-            </motion.div>
-          </div>
+            </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <motion.button
-              onClick={() => setIsOpen(!isOpen)}
-              className="text-[#8b949e] hover:text-[#1f6feb] transition-colors p-2"
-              whileTap={{ scale: 0.95 }}
-            >
-              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </motion.button>
+            <div className="flex md:hidden items-center gap-1">
+              {/* <button
+                type="button"
+                onClick={toggleTheme}
+                className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
+                aria-label={
+                  isDark ? "Switch to light mode" : "Switch to dark mode"
+                }
+              >
+                {mounted ? (
+                  isDark ? (
+                    <Sun className="h-5 w-5" />
+                  ) : (
+                    <Moon className="h-5 w-5" />
+                  )
+                ) : (
+                  <span className="h-5 w-5 block" aria-hidden />
+                )}
+              </button> */}
+              <button
+                className="p-2 text-foreground"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </motion.nav>
 
-      {/* Mobile Navigation */}
       <AnimatePresence>
-        {isOpen && (
+        {isMobileMenuOpen && (
           <motion.div
-            className="md:hidden bg-[#0d1117]/98 backdrop-blur-xl border-t border-[#1f6feb]/30"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-30 lg:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
           >
-            <div className="px-4 py-6 space-y-4">
-              {navItems.map((item, index) => (
+            <div className="absolute inset-0 bg-background/95 backdrop-blur-lg" />
+            <motion.div
+              className="relative flex flex-col items-center justify-center h-full gap-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ delay: 0.1 }}
+            >
+              {navLinks.map((link, index) => (
                 <motion.div
-                  key={item.name}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  key={link.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + index * 0.05 }}
                 >
-                  {item.href.startsWith("/") && !item.href.includes("#") ? (
-                    <Link
-                      href={item.href}
-                      className="flex items-center space-x-3 text-[#8b949e] hover:text-[#1f6feb] transition-colors py-2"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <item.icon className="w-5 h-5" />
-                      <span className="font-medium">{item.name}</span>
-                    </Link>
-                  ) : (
-                    <button
-                      onClick={() => scrollToSection(item.href.replace("#", ""))}
-                      className="flex items-center space-x-3 text-[#8b949e] hover:text-[#1f6feb] transition-colors py-2 w-full text-left"
-                    >
-                      <item.icon className="w-5 h-5" />
-                      <span className="font-medium">{item.name}</span>
-                    </button>
-                  )}
+                  <Link
+                    href={link.href}
+                    onClick={(e) => {
+                      if (link.href.startsWith("/#")) {
+                        e.preventDefault();
+                        handleNavClick(link.href);
+                      } else {
+                        setIsMobileMenuOpen(false);
+                      }
+                    }}
+                    className="text-2xl font-semibold text-foreground hover:text-primary transition-colors"
+                  >
+                    {link.name}
+                  </Link>
                 </motion.div>
               ))}
               <motion.div
-                className="pt-4"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.5 }}
+                transition={{ delay: 0.4 }}
+                className="mt-4"
               >
                 <Button
-                  className="w-full bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] hover:from-[#58a6ff] hover:to-[#1f6feb] text-white py-3 rounded-lg"
-                  onClick={() => setIsOpen(false)}
+                  asChild
+                  variant="default"
+                  size="lg"
+                  className="bg-primary hover:bg-primary/90 glow-effect"
                 >
-                  Register Now
+                  <Link
+                    href="https://forms.gle/UD1pEyFbTWy1Yddy7"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Register Now
+                  </Link>
                 </Button>
               </motion.div>
-            </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.nav>
-  )
-}
+    </>
+  );
+};
+
+export default Navbar;
